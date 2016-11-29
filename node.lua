@@ -2,6 +2,21 @@ gl.setup(NATIVE_WIDTH, NATIVE_HEIGHT)
 
 local json = require "json"
 
+function deepcopy(orig)
+   local orig_type = type(orig)
+   local copy
+   if orig_type == 'table' then
+      copy = {}
+      for orig_key, orig_value in next, orig, nil do
+	 copy[deepcopy(orig_key)] = deepcopy(orig_value)
+      end
+      setmetatable(copy, deepcopy(getmetatable(orig)))
+   else -- number, string, boolean, etc
+      copy = orig
+   end
+   return copy
+end
+
 local shaders = {
     multisample = resource.create_shader[[
         uniform sampler2D Texture;
@@ -115,6 +130,8 @@ local Config = (function()
     local audio = false
     local portrait = false
     local rotation = 0
+    local h1 = {}
+    local h2 = {}
     local transform = function() end
 
     util.file_watch("config.json", function(raw)
@@ -132,6 +149,24 @@ local Config = (function()
         transform = util.screen_transform(rotation)
         print("screen size is " .. WIDTH .. "x" .. HEIGHT)
 
+	local w = 0
+	h1 = {}
+	h1.text = config.h1_text
+	h1.x = config.h1_x / 100.0
+	h1.y = config.h1_y / 100.0
+	h1.size = config.h1_size
+	h1.color = config.h1_color
+	h1.font = resource.load_font(config.h1_font)
+	h1.align = config.h1_align
+	h2 = {}
+	h2.text = config.h2_text
+	h2.x = config.h2_x / 100.0
+	h2.y = config.h2_y / 100.0
+	h2.size = config.h2_size
+	h2.color = config.h2_color
+	h2.font = resource.load_font(config.h2_font)
+	h2.align = config.h2_align
+	
         if #config.playlist == 0 then
             playlist = settings.FALLBACK_PLAYLIST
             switch_time = 0
@@ -172,6 +207,28 @@ local Config = (function()
         get_progress = function() return progress end;
         get_rotation = function() return rotation, portrait end;
         apply_transform = function() return transform() end;
+        get_h1 = function()
+	   local h = deepcopy(h1)
+	   h.text = os.date(h.text)
+	   local w = h.font:width(h.text, h.size)
+	   if h.align == 1 then
+	      h.x = ((WIDTH * h.x) - w) / WIDTH
+	   elseif h1.align == 2 then
+	      h.x = ((WIDTH * h.x) - w/2) / WIDTH	   
+	   end
+	   return h
+	end;
+        get_h2 = function()
+	   local h = deepcopy(h2)
+	   h.text = os.date(h.text)
+	   local w = h.font:width(h.text, h.size)
+	   if h.align == 1 then
+	      h.x = ((WIDTH * h.x) - w) / WIDTH
+	   elseif h1.align == 2 then
+	      h.x = ((WIDTH * h.x) - w/2) / WIDTH	   
+	   end
+	   return h
+	end;
     }
 end)()
 
@@ -298,7 +355,14 @@ local ImageJob = function(item, ctx, fn)
                 ctx.starts, ctx.ends, now, Config.get_switch_time()
             ))
             draw_progress(ctx.starts, ctx.ends, now)
-            if now > ctx.ends then
+
+	    local h1 = Config.get_h1()
+	    local h2 = Config.get_h2()
+
+	    h1.font:write(h1.x*WIDTH, h1.y*HEIGHT, h1.text, h1.size, h1.color[1], h1.color[2], h1.color[3], h1.color[4])
+	    h2.font:write(h2.x*WIDTH, h2.y*HEIGHT, h2.text, h2.size, h2.color[1], h2.color[2], h2.color[3], h2.color[4])
+
+	    if now > ctx.ends then
                 break
             end
             fn.wait_next_frame()

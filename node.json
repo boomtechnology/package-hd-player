@@ -97,4 +97,104 @@
             "default": 5
         }]
     }]
+    , {
+	"title": "Titles",
+	"type": "section"
+    }
+    , {
+	"title": "H1 Text",
+	"name": "h1_text",
+	"type": "text",
+	"rows": 5,
+	"default": ""
+    }
+    , {
+	"title": "H1 X",
+	"name": "h1_x",
+	"type": "integer",
+	"default": 50
+    }
+    , {
+	"title": "H1 Y",
+	"name": "h1_y",
+	"type": "integer",
+	"default": 20
+    }
+    , {
+	"title": "H1 Size",
+	"name": "h1_size",
+	"type": "integer",
+	"default": 30
+    }
+    , {
+	"title": "H1 Color",
+	"name": "h1_color",
+	"type": "color",
+	"default": [1,1,1,1]
+    }
+    , {
+	"title": "H1 Font",
+	"name": "h1_font",
+	"type": "font",
+	"default": "SourceSansPro-Bold.otf"
+    }
+    , {
+	"title": "H1 Align",
+	"name": "h1_align",
+	"type": "select",
+	"options": [
+	    [0, "left"],
+	    [1, "right"],
+	    [2, "center"]
+	],
+	"default": 0
+    }
+    , {
+        "title": "H2 Text",
+	"name": "h2_text",
+	"type":"text",
+	"rows": 5,
+	"default": ""
+    }
+    , {
+	"title": "H2 X",
+	"name": "h2_x",
+	"type": "integer",
+	"default": 50
+    }
+    , {
+	"title": "H2 Y",
+	"name": "h2_y",
+	"type": "integer",
+	"default": 30
+    }
+    , {
+	"title": "H2 Size",
+	"name": "h2_size",
+	"type": "integer",
+	"default": 20
+    }
+    , {
+	"title": "H2 Color",
+	"name": "h2_color",
+	"type": "color",
+	"default": [1,1,1,1]
+    }
+    , {
+	"title": "H2 Font",
+	"name": "h2_font",
+	"type": "font",
+	"default": "roboto.ttf"
+    }
+    , {
+	"title": "H2 Align",
+	"name": "h2_align",
+	"type": "select",
+	"options": [
+	    [0, "left"],
+	    [1, "right"],
+	    [2, "center"]
+	],
+	"default": 0
+    }
 }
