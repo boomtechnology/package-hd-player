@@ -1,6 +1,6 @@
 {
-    "name": "HD Image/Video Player",
-    "author": "Florian Wesch <fw@dividuum.de>",
+    "name": "Boom HD Image/Video Player",
+    "author": "Joshua Krall <josh@boom.aero>",
     "desc": "Displays images and videos in a rotation",
-    "repository": "https://github.com/info-beamer/package-hd-player"
+    "repository": "https://github.com/boomtechnology/package-hd-player"
 }
