@@ -359,8 +359,8 @@ local ImageJob = function(item, ctx, fn)
 	    local h1 = Config.get_h1()
 	    local h2 = Config.get_h2()
 
-	    h1.font:write(h1.x*WIDTH, h1.y*HEIGHT, h1.text, h1.size, h1.color[1], h1.color[2], h1.color[3], h1.color[4])
-	    h2.font:write(h2.x*WIDTH, h2.y*HEIGHT, h2.text, h2.size, h2.color[1], h2.color[2], h2.color[3], h2.color[4])
+	    h1.font:write(h1.x*WIDTH, h1.y*HEIGHT, h1.text, h1.size, h1.color.r, h1.color.g, h1.color.b, h1.color.a)
+	    h2.font:write(h2.x*WIDTH, h2.y*HEIGHT, h2.text, h2.size, h2.color.r, h2.color.g, h2.color.b, h2.color.a)
 
 	    if now > ctx.ends then
                 break
