@@ -183,7 +183,7 @@
     	"title": "H2 Font",
     	"name": "h2_font",
     	"type": "font",
-    	"default": "roboto.ttf"
+    	"default": "Roboto-Light.ttf"
         }
         , {
     	"title": "H2 Align",
