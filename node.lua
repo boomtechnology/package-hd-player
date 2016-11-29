@@ -156,7 +156,7 @@ local Config = (function()
 	h1.y = config.h1_y / 100.0
 	h1.size = config.h1_size
 	h1.color = config.h1_color
-	h1.font = resource.load_font(config.h1_font)
+	h1.font = resource.load_font(config.h1_font.filename)
 	h1.align = config.h1_align
 	h2 = {}
 	h2.text = config.h2_text
@@ -164,7 +164,7 @@ local Config = (function()
 	h2.y = config.h2_y / 100.0
 	h2.size = config.h2_size
 	h2.color = config.h2_color
-	h2.font = resource.load_font(config.h2_font)
+	h2.font = resource.load_font(config.h2_font.filename)
 	h2.align = config.h2_align
 	
         if #config.playlist == 0 then
