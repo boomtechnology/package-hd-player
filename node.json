@@ -79,8 +79,8 @@
 	"type": "select",
 	"hint": "The timezone",
 	"options": [
-	    ["UTC", "UTC"],
-	    ["America/Denver", "Denver"]
+	    [0, "UTC"],
+	    [-7, "Denver"]
 	],
 	"default": "America/Denver"
     },  

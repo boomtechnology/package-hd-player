@@ -2,7 +2,6 @@
 import os
 import sys
 import time
-import pytz
 import json
 from calendar import timegm
 from datetime import timedelta, datetime
@@ -12,24 +11,13 @@ from hosted import CONFIG, NODE, UPSTREAM
 
 CONFIG.restart_on_update()
 
-diff = datetime(2014,7,22,8,20,00) - datetime.utcnow()
-
 def current_time():
-    now = datetime.utcnow() # + diff
+    now = datetime.utcnow()
     timestamp = timegm(now.timetuple()) + now.microsecond / 1000000.
     return now, timestamp
             
 def send_clock(now, ts):
-    now = now.replace(tzinfo=pytz.utc)
-    now = now.astimezone(pytz.timezone(CONFIG['timezone']))
-    now = now.replace(tzinfo=None)
-    since_midnight = (
-        now -
-        now.replace(hour=0, minute=0, second=0, microsecond=0)
-    )
-    since_midnight = since_midnight.seconds + since_midnight.microseconds / 1000000.
     NODE.send('/clock/set:%f' % ts)
-    NODE.send('/clock/midnight:%f' % since_midnight)
 
 def main():
     while 1:

@@ -123,10 +123,11 @@ local Loading = (function()
 end)()
 
 
-
 function get_now()
    return base_time + sys.now()
 end
+
+local Config = nil
 
 local clock = (function()
       local base_time = N.base_time or 0
@@ -140,10 +141,18 @@ local clock = (function()
 	    print("NEW midnight", since_midnight)
 	    set(since_midnight)
 	 end;
+	 ["clock/set"] = function(time)
+	    set(time)
+	    print("UPDATED TIME", base_time)
+	 end;
+	 ["clock/day"] = function(new_day)
+	    day = new_day
+	    print("UPDATED DAY", new_day)
+	 end;
       }
       
       local function get()
-	 local time = (base_time + sys.now()) % 86400
+	 local time = (base_time + sys.now()) + Config.get_timezone()*60*60
 	 return time --string.format("%d:%02d", math.floor(time / 3600), math.floor(time % 3600 / 60))
       end
       
@@ -153,20 +162,7 @@ local clock = (function()
       }
 end)()
 
-util.data_mapper{
-   ["clock/set"] = function(time)
-      base_time = tonumber(time) - sys.now()
-      N.base_time = base_time
-      check_next_talk()
-      print("UPDATED TIME", base_time)
-   end;
-   ["clock/day"] = function(new_day)
-      day = new_day
-      print("UPDATED DAY", new_day)
-   end;
-}
-
-local Config = (function()
+Config = (function()
     local playlist = {}
     local switch_time = 1
     local synced = false
@@ -174,6 +170,7 @@ local Config = (function()
     local audio = false
     local portrait = false
     local rotation = 0
+    local timezone = 0
     local h1 = {}
     local h2 = {}
     local transform = function() end
@@ -186,6 +183,7 @@ local Config = (function()
         kenburns = config.kenburns
         audio = config.audio
         progress = config.progress
+	timezone = config.timezone
 
         rotation = config.rotation
         portrait = rotation == 90 or rotation == 270
@@ -250,6 +248,7 @@ local Config = (function()
         get_audio = function() return audio end;
         get_progress = function() return progress end;
         get_rotation = function() return rotation, portrait end;
+	get_timezone = function() return timezone end;
         apply_transform = function() return transform() end;
         get_h1 = function()
 	   local h = deepcopy(h1)
