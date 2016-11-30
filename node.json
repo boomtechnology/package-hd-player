@@ -72,7 +72,18 @@
         "doc_link": true,
         "default": false
     },
-
+    {
+	"title": "Time Zone",
+	"ui_width": 4,
+	"name": "timezone",
+	"type": "select",
+	"hint": "The timezone",
+	"options": [
+	    ["UTC", "UTC"],
+	    ["America/Denver", "Denver"]
+	],
+	"default": "America/Denver"
+    },  
     {
         "title": "What to display",
         "type": "section"

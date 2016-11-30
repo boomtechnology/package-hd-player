@@ -122,6 +122,50 @@ local Loading = (function()
     }
 end)()
 
+
+
+function get_now()
+   return base_time + sys.now()
+end
+
+local clock = (function()
+      local base_time = N.base_time or 0
+      
+      local function set(time)
+	 base_time = tonumber(time) - sys.now()
+      end
+      
+      util.data_mapper{
+	 ["clock/midnight"] = function(since_midnight)
+	    print("NEW midnight", since_midnight)
+	    set(since_midnight)
+	 end;
+      }
+      
+      local function get()
+	 local time = (base_time + sys.now()) % 86400
+	 return time --string.format("%d:%02d", math.floor(time / 3600), math.floor(time % 3600 / 60))
+      end
+      
+      return {
+	 get = get;
+	 set = set;
+      }
+end)()
+
+util.data_mapper{
+   ["clock/set"] = function(time)
+      base_time = tonumber(time) - sys.now()
+      N.base_time = base_time
+      check_next_talk()
+      print("UPDATED TIME", base_time)
+   end;
+   ["clock/day"] = function(new_day)
+      day = new_day
+      print("UPDATED DAY", new_day)
+   end;
+}
+
 local Config = (function()
     local playlist = {}
     local switch_time = 1
@@ -209,7 +253,8 @@ local Config = (function()
         apply_transform = function() return transform() end;
         get_h1 = function()
 	   local h = deepcopy(h1)
-	   h.text = os.date(h.text)
+	   local unix = clock.get()
+	   h.text = os.date(h.text, unix)
 	   local w = h.font:width(h.text, h.size)
 	   if h.align == 1 then
 	      h.x = ((WIDTH * h.x) - w) / WIDTH
@@ -220,7 +265,8 @@ local Config = (function()
 	end;
         get_h2 = function()
 	   local h = deepcopy(h2)
-	   h.text = os.date(h.text)
+	   local unix = clock.get()
+	   h.text = os.date(h.text, unix)
 	   local w = h.font:width(h.text, h.size)
 	   if h.align == 1 then
 	      h.x = ((WIDTH * h.x) - w) / WIDTH
@@ -436,22 +482,6 @@ local VideoJob = function(item, ctx, fn)
     return true
 end
 
-local Time = (function()
-    local base
-    util.data_mapper{
-        ["clock/set"] = function(t)
-            base = tonumber(t) - sys.now()
-        end
-    }
-    return {
-        get = function()
-            if base then
-                return base + sys.now()
-            end
-        end
-    }
-end)()
-
 local Queue = (function()
     local jobs = {}
     local scheduled_until = sys.now()
@@ -513,7 +543,7 @@ local Queue = (function()
         local playlist = Config.get_playlist()
 
         local now = sys.now()
-        local unix = Time.get()
+        local unix = clock.get()
         if not unix then
             return
         end
