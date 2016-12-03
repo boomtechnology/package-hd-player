@@ -130,40 +130,26 @@ end
 local Config = nil
 
 local clock = (function()
-      local base_time = N.base_time or 0
+    local base_time = N.base_time or 0
       
-      local function set(time)
-	 base_time = tonumber(time) - sys.now()
-      end
+    local function set(time)
+        base_time = tonumber(time) - sys.now()
+    end
       
-      util.data_mapper{
-	 ["clock/midnight"] = function(since_midnight)
-	    print("NEW midnight", since_midnight)
-	    set(since_midnight)
-	 end;
-	 ["clock/set"] = function(time)
-	    set(time)
-	    print("UPDATED TIME", base_time)
-	 end;
-	 ["clock/day"] = function(new_day)
-	    day = new_day
-	    print("UPDATED DAY", new_day)
-	 end;
-      }
+    local function get()
+        local time = (base_time + sys.now()) + Config.get_timezone()*60*60
+        return time --string.format("%d:%02d", math.floor(time / 3600), math.floor(time % 3600 / 60))
+    end
       
-      local function get()
-	 local time = (base_time + sys.now()) + Config.get_timezone()*60*60
-	 return time --string.format("%d:%02d", math.floor(time / 3600), math.floor(time % 3600 / 60))
-      end
-      
-      return {
-	 get = get;
-	 set = set;
-      }
+    return {
+        get = get;
+        set = set;
+    }
 end)()
 
 Config = (function()
     local playlist = {}
+    local videos = {}
     local switch_time = 1
     local synced = false
     local kenburns = false
@@ -238,9 +224,29 @@ Config = (function()
             end
             switch_time = config.switch_time
         end
+
+        if #config.videos == 0 then
+            videos = {}
+        else
+            videos = {}
+            for idx = 1, #config.videos do
+                local item = config.videos[idx]
+                if item.duration > 0 then
+                    videos[#videos+1] = {
+                        index = idx,
+                        offset = 0,
+                        total_duration = item.duration,
+                        duration = item.duration,
+                        asset_name = item.file.asset_name,
+                        type = item.file.type,
+                    }
+                end
+            end
+        end
     end)
 
     return {
+        get_videos = function() return videos end;
         get_playlist = function() return playlist end;
         get_switch_time = function() return switch_time end;
         get_synced = function() return synced end;
@@ -614,6 +620,23 @@ local Queue = (function()
 end)()
 
 util.set_interval(1, node.gc)
+
+util.data_mapper{
+    ["clock/midnight"] = function(since_midnight)
+        print("NEW midnight", since_midnight)
+        clock.set(since_midnight)
+    end;
+    ["clock/set"] = function(time)
+        clock.set(time)
+        print("UPDATED TIME", base_time)
+    end;
+    ["videos/play"] = function(id)
+        print("Playing video: ", id)
+        local item = Config.get_videos()[id]
+        local now = sys.now()
+        Queue.enqueue(now, now + item.duration, item)
+    end;
+}
 
 function node.render()
     -- print("--- frame", sys.now())
