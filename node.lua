@@ -294,8 +294,14 @@ local Scheduler = (function()
         return item
     end
 
+    local function get_current()
+       local playlist = Config.get_playlist()
+       return playlist[playlist_offset]
+    end
+    
     return {
-        get_next = get_next;
+       get_next = get_next;
+       get_current = get_current;
     }
 end)()
 
@@ -514,7 +520,7 @@ local Queue = (function()
             asset = asset;
         }
 
-        local success, err = coroutine.resume(co, item, ctx, {
+	local success, err = coroutine.resume(co, item, ctx, {
             wait_next_frame = function ()
                 return coroutine.yield(false)
             end;
@@ -614,8 +620,18 @@ local Queue = (function()
         Loading.draw()
     end
 
+    local function clear()
+       for idx = #jobs,1,-1 do -- iterate backwards so we can remove finished jobs
+	  local job = jobs[idx]
+	  job.ctx.ends = 0
+	  table.remove(jobs, idx)
+       end
+    end
+    
     return {
-        tick = tick;
+       tick = tick;
+       enqueue = enqueue;
+       clear = clear;
     }
 end)()
 
@@ -632,8 +648,9 @@ util.data_mapper{
     end;
     ["videos/play"] = function(id)
         print("Playing video: ", id)
-        local item = Config.get_videos()[id]
+        local item = Config.get_videos()[tonumber(id)]
         local now = sys.now()
+	Queue.clear()
         Queue.enqueue(now, now + item.duration, item)
     end;
 }
