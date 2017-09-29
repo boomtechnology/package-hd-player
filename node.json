@@ -80,7 +80,8 @@
 	"hint": "The timezone",
 	"options": [
 	    [0, "UTC"],
-	    [-7, "Denver"]
+	    [-6, "Denver MDT"],
+	    [-7, "Denver MST"]
 	],
 	"default": "America/Denver"
     },  
